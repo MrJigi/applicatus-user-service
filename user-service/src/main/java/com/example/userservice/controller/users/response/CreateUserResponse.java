@@ -1,5 +1,7 @@
 package com.example.userservice.controller.users.response;
 
+import com.example.userservice.model.users.User;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,9 +16,10 @@ import java.util.UUID;
 public class CreateUserResponse {
     private String username;
     private String password;
+    @Email
     private String email;
     private String firstName;
     private String lastName;
-    private String role;
+    private User.Role role;
     private Boolean isActive;
 }

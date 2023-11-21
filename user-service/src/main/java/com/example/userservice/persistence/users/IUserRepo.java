@@ -17,7 +17,7 @@ public interface IUserRepo extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String Email);
 
-
+    
     User findByUsernameAndPassword(String username, String password);
 
 }

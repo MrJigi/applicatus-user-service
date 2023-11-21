@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/getAll")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
@@ -42,6 +44,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{userUsername}")
     public ResponseEntity<GetUserInformationResponse> getUserInformation(@PathVariable String userUsername) {
         Optional<User> user = userService.findUserInformation(userUsername);
@@ -62,6 +65,28 @@ public class UserController {
         }
     }
 
+   /* @GetMapping("/disable/{userID}")
+    public ResponseEntity<GetUserInformationResponse> disableUser(@PathVariable UUID userID) {
+        userService.dissableUser()
+        Optional<User> user = userService.findUserInformation(userUsername);
+        if(user.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        else{
+            User madeUser = user.get();
+            GetUserInformationResponse response = new GetUserInformationResponse(
+                    madeUser.getUsername(),
+                    madeUser.getEmail(),
+                    madeUser.getFirstName(),
+                    madeUser.getLastName(),
+                    madeUser.getRole(),
+                    madeUser.getIsActive()
+            );
+            return ResponseEntity.ok(response);
+        }
+    }*/
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/remove/{userID}")
     public ResponseEntity<Void> deleteUserByUUID(@PathVariable UUID userID) {
         userService.deleteUser(userID);
@@ -71,11 +96,11 @@ public class UserController {
 
     //This updates based on provided User object.
     //Meybe update another one based on UUID Path variable *Ask teacher on this
-//    @PutMapping("/update")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void updateUser(@RequestBody User user) {
-//        userService.updateUser(user.getUuid(), user);
-//    }
+    @PutMapping("/update/{userID}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateUser(@RequestBody User user, @PathVariable UUID userID) {
+        userService.updateUser(userID, user);
+    }
 
     //Need additional logic to register the user with the UserDetails to set a profile with authorization
 

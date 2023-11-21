@@ -39,6 +39,16 @@ public class UserService implements IUserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    public User.Role provideRole(String chosenRole) {
+        if(chosenRole == "ADMIN"){
+            return User.Role.ADMIN;
+        }
+        if(chosenRole == "USER") {
+            return User.Role.USER;
+        }
+        return null;
+    }
     @Override
     public CreateUserResponse createUser(CreateUserRequest user) {
         User newUser = saveUser(user, "USER");
@@ -52,6 +62,7 @@ public class UserService implements IUserService {
                 .isActive(newUser.getIsActive())
                 .build();
     }
+
     @Override
     public CreateUserResponse createAdmin(CreateUserRequest user, int admin) {
         User newUser = saveUser(user, "ADMIN");
@@ -79,12 +90,13 @@ public class UserService implements IUserService {
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .role(chosenRole)
+                .role(provideRole(chosenRole))
                 .isActive(request.getIsActive())
                 .build();
         return userRepository.save(newUser);
 
     }
+
     @Override
     public Optional<User> findUserInformation(String username) {
         return userRepository.findByUsername(username);
@@ -94,17 +106,33 @@ public class UserService implements IUserService {
         this.userRepository.deleteByUserID(userID);
     }
 
-    //Need to do a check if email exist already and the username
+//    @Override
+//    public void disableUser(UUID userID) {
+//        User existingUser = this.userRepository.findUsersByUserID(userID);
+//        if (existingUser != null) {
+//            existingUser.getIsActive();
+//        }
+//    }
+
+    public User updateBuilder(User foundUser,User updatedUserInfo){
+        foundUser.setEmail(updatedUserInfo.getEmail());
+        foundUser.setFirstName(updatedUserInfo.getFirstName());
+        foundUser.setLastName(updatedUserInfo.getLastName());
+        foundUser.setUsername(updatedUserInfo.getUsername());
+        return foundUser;
+    }
 
     public User updateUser(UUID userID, User user) {
         User existingUser = userRepository.findUsersByUserID(userID);
         if (existingUser != null) {
+            updateBuilder(existingUser,user);
             userRepository.save(user);
             log.info("User " + existingUser + " has been updated");
             return existingUser;
         }
         log.info("User " + existingUser + " is incorrect");
-        return null;
+        throw new UserNotFoundException("User with name " + user.getUsername() + " Not found");
+
     }
 
 }

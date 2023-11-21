@@ -1,21 +1,27 @@
 package com.example.userservice.controller.users;
 
+import com.example.userservice.controller.users.requests.CreateUserRequest;
+import com.example.userservice.controller.users.response.CreateUserResponse;
 import com.example.userservice.model.users.User;
 import com.example.userservice.model.users.UserCredentials;
 import com.example.userservice.persistence.users.IUserRepo;
+//import com.example.userservice.service.Jwts.AuthenticationService;
+import com.example.userservice.service.Jwts.JwtService;
+import com.example.userservice.service.users.UserService;
+import com.netflix.discovery.converters.Auto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.impl.TextCodec;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,43 +29,35 @@ import java.util.UUID;
 @RequestMapping("/api/auth")
 public class AuthorizationController {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    private IUserRepo userRepository;
+    private UserService userService;
+    @Autowired
+    private JwtService jwtService;
 
     public AuthorizationController() {
     }
 
+    @GetMapping("/getUserIdentification/{userToken}")
+    public ResponseEntity<String> getUserDetails(@PathVariable String userToken){
+        return ResponseEntity.ok().body(jwtService.extractUserID(userToken));
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserCredentials userCredentials) {
-        // Retrieve user from the database based on username
-        //Make it inherit from user as userDescription
-        Optional<User> user = userRepository.findByUsername(userCredentials.getUsername());
+    public ResponseEntity<String> loginUser(@RequestBody UserCredentials userCredentials) {
 
-        // Check if user exists and password is correct
-        if (user == null || !passwordEncoder.matches(userCredentials.getPassword(), user.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        // Generate JWT token
-        String token = generateJwtToken(user.get().getUserID(), user.get().getUsername());
 
         // Return the token as the response
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok().body(jwtService.provideToken(userCredentials));
     }
 
-    private String generateJwtToken(UUID uuid, String username) {
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("uuid", uuid);
-        claims.put("username",username);
-        // Add any additional claims as needed
+    @PostMapping("/register")
+    public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Valid CreateUserRequest userRequest){
+        CreateUserResponse userResponse = userService.createUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, "yourSecretKey")
-                .compact();
     }
+
 }

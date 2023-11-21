@@ -1,5 +1,6 @@
 package com.example.userservice.controller.users.requests;
 
+import com.example.userservice.model.users.User;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,6 @@ public class CreateUserRequest {
     private String email;
     private String firstName;
     private String lastName;
-    private String roles;
+    private User.Role roles;
     private Boolean isActive;
 }

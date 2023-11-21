@@ -1,5 +1,6 @@
 package com.example.userservice.controller.users.response;
 
+import com.example.userservice.model.users.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,6 @@ public class GetUserInformationResponse {
     private String email;
     private String firstName;
     private String lastName;
-    private String role;
+    private User.Role role;
     private Boolean isActive;
 }
