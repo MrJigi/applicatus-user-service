@@ -40,22 +40,23 @@ public class UserService implements IUserService {
         return userRepository.findAll();
     }
 
-    public User.Role provideRole(String chosenRole) {
-        if(chosenRole == "ADMIN"){
+    public User.Role provideRole(int chosenRole) {
+        if(chosenRole == 1){
             return User.Role.ADMIN;
         }
-        if(chosenRole == "USER") {
+        if(chosenRole == 2) {
             return User.Role.USER;
         }
         return null;
     }
     @Override
     public CreateUserResponse createUser(CreateUserRequest user) {
-        User newUser = saveUser(user, "USER");
+        User newUser = saveUser(user,2);
         return CreateUserResponse.builder()
                 .username(newUser.getUsername())
                 .password(newUser.getPassword())
                 .email(newUser.getEmail())
+                .screenName(newUser.getScreenName())
                 .firstName(newUser.getFirstName())
                 .lastName(newUser.getLastName())
                 .role(newUser.getRole())
@@ -65,11 +66,12 @@ public class UserService implements IUserService {
 
     @Override
     public CreateUserResponse createAdmin(CreateUserRequest user, int admin) {
-        User newUser = saveUser(user, "ADMIN");
+        User newUser = saveUser(user, 1);
         return CreateUserResponse.builder()
                 .username(newUser.getUsername())
                 .password(newUser.getPassword())
                 .email(newUser.getEmail())
+                .screenName(newUser.getScreenName())
                 .firstName(newUser.getFirstName())
                 .lastName(newUser.getLastName())
                 .role(newUser.getRole())
@@ -77,7 +79,7 @@ public class UserService implements IUserService {
                 .build();
     }
     @Override
-    public User saveUser(CreateUserRequest request, String chosenRole) {
+    public User saveUser(CreateUserRequest request, int chosenRole) {
         userRepository.findByUsername(request.getUsername()).ifPresent(user -> {
             throw new UserNotFoundException("User with username:" + request.getUsername() + "already exists");
         });
@@ -89,6 +91,7 @@ public class UserService implements IUserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
+                .screenName(request.getScreenName())
                 .lastName(request.getLastName())
                 .role(provideRole(chosenRole))
                 .isActive(request.getIsActive())

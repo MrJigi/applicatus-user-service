@@ -3,11 +3,14 @@ package com.example.userservice.controller.users;
 import com.example.userservice.controller.users.requests.CreateUserRequest;
 import com.example.userservice.controller.users.response.CreateUserResponse;
 import com.example.userservice.controller.users.response.GetUserInformationResponse;
+import com.example.userservice.controller.users.response.GetUserProfileResponse;
 import com.example.userservice.model.users.User;
 import com.example.userservice.service.users.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,27 +29,71 @@ public class UserController {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
+//    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/getAll")
     public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        LOGGER.info("User-service: get all users");
+        List<User> allUsers = userService.getAllUsers();
+        if(!allUsers.isEmpty()) {
+            LOGGER.info("User-service: provided users");
+            return userService.getAllUsers();
+        }
+        else{
+            LOGGER.info("User-service: get all users empty error");
+            return null;
+        }
+    }
+
+
+    @GetMapping("/{userUsername}/info")
+    public ResponseEntity<GetUserProfileResponse> getUserProfileWithoutAuthentication(@PathVariable String userUsername){
+        LOGGER.info("User-service: get user info auth", userUsername);
+
+        Optional<User> user = userService.findUserInformation(userUsername);
+        if(user.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        else {
+            User foundUser = user.get();
+            GetUserProfileResponse response = new GetUserProfileResponse(
+                    foundUser.getUsername(),
+                    foundUser.getEmail(),
+                    foundUser.getScreenName(),
+                    foundUser.getFirstName(),
+                    foundUser.getLastName(),
+                    foundUser.getRole(),
+                    foundUser.getIsActive()
+
+            );
+            return ResponseEntity.ok(response);
+        }
+//        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
     public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Valid CreateUserRequest request){
+        LOGGER.info("User-service: user registration", request);
+
         CreateUserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/registerAdmin")
     public ResponseEntity<CreateUserResponse> registerAdmin(@RequestBody @Valid CreateUserRequest request){
-        CreateUserResponse response = userService.createAdmin(request, 1);
+        LOGGER.info("User-service: admin registration", request);
+
+        CreateUserResponse response = userService.createAdmin(request, 2);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     @GetMapping("/{userUsername}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<GetUserInformationResponse> getUserInformation(@PathVariable String userUsername) {
+        LOGGER.info("User-service: get user profile as admin", userUsername);
+
         Optional<User> user = userService.findUserInformation(userUsername);
         if(user.isEmpty()){
             return ResponseEntity.noContent().build();
@@ -56,6 +103,7 @@ public class UserController {
             GetUserInformationResponse response = new GetUserInformationResponse(
                     madeUser.getUsername(),
                     madeUser.getEmail(),
+                    madeUser.getScreenName(),
                     madeUser.getFirstName(),
                     madeUser.getLastName(),
                     madeUser.getRole(),
@@ -89,6 +137,8 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/remove/{userID}")
     public ResponseEntity<Void> deleteUserByUUID(@PathVariable UUID userID) {
+        LOGGER.info("User-service: delete user by UUID", userID);
+
         userService.deleteUser(userID);
         return ResponseEntity.noContent().build();
     }

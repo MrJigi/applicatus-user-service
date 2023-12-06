@@ -18,6 +18,7 @@ public class CreateUserRequest {
     private String password;
     @Email
     private String email;
+    private String screenName;
     private String firstName;
     private String lastName;
     private User.Role roles;

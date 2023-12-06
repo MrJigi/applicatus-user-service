@@ -15,7 +15,7 @@ public interface IUserService {
 
     CreateUserResponse createAdmin(CreateUserRequest user, int admin);
 
-    User saveUser(CreateUserRequest request, String chosenRole);
+    User saveUser(CreateUserRequest request, int chosenRole);
     Optional<User> findUserInformation(String username);
     void deleteUser(UUID userID);
 }
