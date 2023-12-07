@@ -14,10 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
 
 @Configuration
@@ -27,14 +29,15 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 public class SecurityConfig {
 
 
-    private final AuthTokenFilter jwtFilter;
-    private final AuthenticationProvider authenticationProvider;
-    private final LogoutHandler logoutHandler;
+//    private final AuthTokenFilter jwtFilter;
+//    private final AuthenticationProvider authenticationProvider;
+//    private final LogoutHandler logoutHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer-> AbstractHttpConfigurer.disable());
+        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());
 
 
 //                .ignoringRequestMatchers("/**")
@@ -52,7 +55,7 @@ public class SecurityConfig {
 //                .authenticated());
 
 //                http.httpBasic(Customizer.withDefaults());
-                http.formLogin(AbstractHttpConfigurer::disable);
+                http.formLogin(formLoginSpec -> formLoginSpec.disable());
 //                .and()
 //                .sessionManagement()
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
