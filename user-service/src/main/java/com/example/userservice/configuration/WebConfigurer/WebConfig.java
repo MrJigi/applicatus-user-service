@@ -10,17 +10,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig {
 
 
-    @Bean
-    public WebMvcAutoConfiguration corsConfiguration(){
-        return new WebMvcAutoConfiguration(){
-            public void addCorsMapping(CorsRegistry registry){
-                registry.addMapping("**").allowedOrigins("http://localhost:3000")
-                        .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
-                        .allowCredentials(true)
-                        .allowedHeaders("*");
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcAutoConfiguration corsConfiguration(){
+//        return new WebMvcAutoConfiguration(){
+//            public void addCorsMapping(CorsRegistry registry){
+//                registry.addMapping("**").allowedOrigins("http://localhost:3000")
+//                        .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH")
+//                        .allowCredentials(true)
+//                        .allowedHeaders("*");
+//            }
+//        };
+//    }
 
 //    @Bean
 //    public WebMvcConfigurer corsConfigurer() {

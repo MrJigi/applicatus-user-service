@@ -40,21 +40,6 @@ public class SecurityConfig {
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable());
 
 
-//                .ignoringRequestMatchers("/**")
-//                .and()
-//                .httpBasic()
-//                .disable()
-//                .formLogin()
-//                .disable()
-//                http.authorizeHttpRequests( authorize -> authorize
-//                .requestMatchers("/**")
-//                .permitAll()
-//                .requestMatchers("/**")
-//                .hasRole("USER")
-//                .anyRequest()
-//                .authenticated());
-
-//                http.httpBasic(Customizer.withDefaults());
                 http.formLogin(formLoginSpec -> formLoginSpec.disable());
 //                .and()
 //                .sessionManagement()

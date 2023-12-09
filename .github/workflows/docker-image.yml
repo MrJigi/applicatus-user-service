@@ -1,0 +1,72 @@
+name: CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    # - name: Build API Gateway
+    #   run: |
+    #     echo "Running Build"
+    #     cd api-gateway
+    #     ./gradlew clean install -DskipTests -e
+    #     echo "Running Build for Gateway Test"
+    #     echo $JAVA_HOME
+    #     chmod +x gradlew
+    #     ./gradlew clean build
+    #     echo "Build complete."
+
+    # - name: Set up Java
+    #   uses: actions/setup-java@v2
+    #   with:
+    #     distribution: 'adopt'
+    #     java-version: '17'
+
+  build-gradle-project:
+      runs-on: self-hosted
+      steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v2
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run build with Gradle Wrapper
+        run: |
+            echo "switched `pwd`"
+            cd ./api-gateway
+            echo "switched `pwd`"
+            gradle install
+            gradle build
+
+    # name: Unit Test
+    #   run: |
+    #       echo "Running unit tests... This will take about 60 seconds."
+    #       cd api-gateway
+    #       gradlew test
+    #       echo "Code coverage test complete"
+
+  # docker_push:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #   - name: Checkout Repository
+  #     uses: actions/checkout@v2
+
+  #   - name: Docker Login
+  #     run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+  #   - name: Docker Push
+  #     run: |
+  #       echo "Running unit tests..."
+  #       cd api-gateway
+  #       docker push evaldas483/applicatus-api-gateway
+
+  # Additional jobs can be added based on your GitLab CI/CD configuration.

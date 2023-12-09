@@ -50,7 +50,7 @@ public class UserControllerTest {
 
     @Test
     void createNewMember(){
-        CreateUserResponse user = UserFixture.getCreateMemberResponse();
+//        CreateUserResponse user = UserFixture.getCreateMemberResponse();
 
         CreateUserRequest createUserRequest = UserFixture.getCreateMemberRequest();
 
